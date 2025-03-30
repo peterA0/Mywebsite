@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery</title>
+    <link rel="stylesheet" href="style/gallery.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #3b3a3a;
+            color: white;
+            text-align: center;
+            margin: 0;
+        }
+        
+        h1 {
+            font-size: 50px;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+            justify-items: center;
+        }
+        
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .gallery img {
+            width: 230px;  
+            height: auto;
+            border: 2px;;
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .gallery img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(242, 239, 239, 0.3);
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background: red;
+        }
+        
+        .file-upload {
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .file-upload-label:hover {
+            background: linear-gradient(45deg, #ff4b2b, #ff416c);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🖼️ Gallery</h1>
+    </header>
+    
+    <div class="file-upload">
+        <label for="imageUpload" class="file-upload-label">📂 اختر صورة</label>
+        <input type="file" id="imageUpload" accept="image/*">
+    </div>
+    <section class="gallery" id="gallery"></section>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let gallery = document.getElementById("gallery");
+            let storedImages = JSON.parse(localStorage.getItem("galleryImages")) || [];
+            storedImages.forEach(src => addImageToGallery(src));
+        });
+
+        document.getElementById("imageUpload").addEventListener("change", function (event) {
+            let input = event.target;
+            let storedImages = JSON.parse(localStorage.getItem("galleryImages")) || [];
+
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    addImageToGallery(e.target.result);
+                    storedImages.push(e.target.result);
+                    localStorage.setItem("galleryImages", JSON.stringify(storedImages));
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+
+        function addImageToGallery(src) {
+            let gallery = document.getElementById("gallery");
+            let container = document.createElement("div");
+            container.classList.add("image-container");
+            
+            let img = document.createElement("img");
+            img.src = src;
+            img.width = 200;
+            img.style.borderRadius = "10px";
+            
+            let deleteBtn = document.createElement("button");
+            deleteBtn.classList.add("delete-btn");
+            deleteBtn.textContent = "×";
+            deleteBtn.onclick = function () {
+                container.remove();
+                let storedImages = JSON.parse(localStorage.getItem("galleryImages")) || [];
+                storedImages = storedImages.filter(imageSrc => imageSrc !== src);
+                localStorage.setItem("galleryImages", JSON.stringify(storedImages));
+            };
+            
+            container.appendChild(img);
+            container.appendChild(deleteBtn);
+            gallery.appendChild(container);
+        }
+    </script>
+</body>
+</html>
